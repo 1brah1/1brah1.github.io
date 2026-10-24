@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muhammad Ibrahim Khalid</title>
+    <meta name="description" content="Muhammad Ibrahim Khalid, final-year Electronic Engineering student at HKUST working on efficient ML systems: LLM inference memory, edge AI on NVIDIA Jetson, and generating rare, safety-critical events.">
+    <script>
+        try {
+            var saved = localStorage.getItem('ibr-theme');
+            if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+        } catch (e) {}
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/site.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='%231F4E9C'/><text x='16' y='21' font-size='12' font-family='Georgia,serif' font-weight='600' fill='white' text-anchor='middle'>MIK</text></svg>">
+</head>
+<body>
+    <header class="topbar">
+        <div class="wrap">
+            <a href="./" class="brand">Muhammad Ibrahim Khalid</a>
+            <nav class="topnav" aria-label="Main">
+                <a href="#research">Research</a>
+                <a href="#projects">Projects</a>
+                <a href="#experience" class="hide-sm">Experience</a>
+                <a href="assets/Ibrahim_Khalid_CV.pdf">CV</a>
+                <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch between light and dark">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <section class="intro">
+            <div class="monogram" aria-hidden="true">MIK</div>
+            <div>
+                <h1>Muhammad Ibrahim Khalid</h1>
+                <p class="role">Final-year BEng Electronic Engineering, HKUST</p>
+                <div class="bio">
+                    <p>
+                        I work on efficient ML systems: getting large models to run under tight memory and latency budgets,
+                        from vision-language models on an NVIDIA Jetson to LLM inference that no longer fits in GPU memory.
+                    </p>
+                    <p>
+                        My final-year thesis with Prof. Zili Meng studies weight and KV-cache placement for LLM inference on wireless GPU infrastructure.
+                        I'm also a research intern at Gray Scrubs AI, working on generating rare, safety-critical events.
+                        I'm looking for research positions and master's programmes starting in 2027.
+                    </p>
+                </div>
+                <div class="links">
+                    <a href="assets/Ibrahim_Khalid_CV.pdf">CV</a>
+                    <a href="mailto:mikhalid@connect.ust.hk">mikhalid@connect.ust.hk</a>
+                    <a href="https://github.com/1brah1" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a href="https://www.linkedin.com/in/muhammad-ibrahim-khalid-475621382/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                </div>
+                <div class="interests" aria-label="Research interests">
+                    <span class="chip">LLM inference systems</span>
+                    <span class="chip">KV-cache &amp; memory hierarchy</span>
+                    <span class="chip">edge AI</span>
+                    <span class="chip">efficient vision-language models</span>
+                    <span class="chip">generative models</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="block" aria-labelledby="news-title">
+            <h2 id="news-title">News</h2>
+            <ul class="news">
+                <li><time datetime="2026-09">Sep 2026</time><span>Started as a research intern at Gray Scrubs AI, working on generating rare, safety-critical events.</span></li>
+                <li><time datetime="2026-09-25">Sep 2026</time><span>Submitted my thesis proposal on weight and KV-cache placement for LLM inference, with HK$22,500 of compute funding on the HKUST SuperPOD.</span></li>
+                <li><time datetime="2026-08">Aug 2026</time><span>Released <a href="https://github.com/1brah1/SignalProof" target="_blank" rel="noopener noreferrer">SignalProof</a>, a backtest auditor that catches look-ahead leakage.</span></li>
+                <li><time datetime="2026-06">Jun 2026</time><span>Joined LWK + Partners to automate building-code compliance checks in Revit.</span></li>
+                <li><time datetime="2026-05">May 2026</time><span>Finished the <a href="jetson/">Jetson VQA project</a>: 2.2× lower on-device latency from token pooling alone.</span></li>
+            </ul>
+        </section>
+
+        <section class="block" id="research" aria-labelledby="research-title">
+            <h2 id="research-title">Research</h2>
+            <ul class="items">
+                <li class="item">
+                    <div class="thumb" data-diagram="thesis" aria-label="A client sends only tokens over Wi-Fi to an H800 node whose memory is split into VRAM, DRAM and NVMe tiers"></div>
+                    <div>
+                        <h3>Hot/Cold Weight Swapping and KV-Cache Placement for LLM Inference on Wireless GPU Infrastructure<span class="status">in progress</span></h3>
+                        <p class="byline"><em>Final-year thesis</em> · advised by Prof. Zili Meng · 2026–2027</p>
+                        <p>
+                            WiCi lets a mobile client run CUDA on a nearby GPU server over Wi-Fi. I'm designing the server-side memory policy for when the model and its KV cache exceed one H800's 80 GB:
+                            hot layers and live KV pages stay in VRAM, cold layers are prefetched from DRAM or NVMe while the current layer runs, and only tokens cross the wireless link.
+                        </p>
+                        <p class="result">Target: decode at ≥ 80% of a fully VRAM-resident baseline, compared against FlexGen-style offload, measured as TTFT, p95 inter-token latency and tokens/s.</p>
+                    </div>
+                </li>
+                <li class="item">
+                    <div class="thumb" data-diagram="rareVideo" aria-label="A strip of frames with one highlighted frame, standing for a rare event"></div>
+                    <div>
+                        <h3>Generating Rare, Safety-Critical Events<span class="status">ongoing</span></h3>
+                        <p class="byline"><em>Research intern, Gray Scrubs AI</em> · Sep 2026 – present</p>
+                        <p>
+                            Rare, safety-critical events are hard to capture, which makes them hard to learn from.
+                            I'm part of the research team at Gray Scrubs AI working on generating them. More detail once the work is public.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block" id="projects" aria-labelledby="projects-title">
+            <h2 id="projects-title">Selected projects</h2>
+            <ul class="items">
+                <li class="item">
+                    <a class="thumb" href="jetson/" data-diagram="jetsonThumb" aria-label="Bar chart of mean latency by image-token count, with 36 tokens the fastest"></a>
+                    <div>
+                        <h3><a href="jetson/">Real-Time Visual Question Answering for Low-Vision Navigation on a Jetson Orin NX</a></h3>
+                        <p class="byline"><em>COMP4901D course project</em>, with Hashim · Mar – May 2026</p>
+                        <p>
+                            A camera, a Jetson and a small vision-language model (SigLIP + Qwen2.5-0.5B) that answer crossing, stairs and obstacle questions out loud.
+                            I built the vision encoder, token pooling, the evaluation framework and all on-device benchmarking, plus CUDA/PyBind11 kernels for preprocessing.
+                        </p>
+                        <p class="result">Pooling image tokens 576 → 36 cut mean on-device latency from 747 to 346 ms (2.2×) while accuracy rose from 25% to 50%.</p>
+                        <div class="item-links">
+                            <a href="jetson/">write-up</a>
+                            <a href="https://github.com/1brah1/VQA_Project-COMP4901D-" target="_blank" rel="noopener noreferrer">code</a>
+                            <a href="https://github.com/1brah1/jetson-vqa-cpp-extensions" target="_blank" rel="noopener noreferrer">CUDA extensions</a>
+                        </div>
+                    </div>
+                </li>
+                <li class="item">
+                    <div class="thumb" data-diagram="signalproof" aria-label="Walk-forward train and test windows separated by an embargo gap, ending in a FAIL verdict"></div>
+                    <div>
+                        <h3><a href="https://github.com/1brah1/SignalProof" target="_blank" rel="noopener noreferrer">SignalProof: Auditing Equity Backtests for Look-Ahead Leakage</a></h3>
+                        <p class="byline"><em>Independent project</em> · Aug 2026</p>
+                        <p>
+                            A Hong Kong equity research lab that injects look-ahead leaks on purpose and audits every run with purged walk-forward validation, the Deflated Sharpe Ratio and the Probability of Backtest Overfitting.
+                            A local LLM writes the research memo from the metrics alone and never sees prices.
+                        </p>
+                        <p class="result">Both injected leaks are flagged FAIL (PBO 0.90 and 0.66); the clean pipeline gets WARN rather than a false pass.</p>
+                        <div class="item-links"><a href="https://github.com/1brah1/SignalProof" target="_blank" rel="noopener noreferrer">code</a></div>
+                    </div>
+                </li>
+                <li class="item">
+                    <div class="thumb" data-diagram="sbd" aria-label="Plan view of two towers with a wind corridor between them"></div>
+                    <div>
+                        <h3>Automating Air-Ventilation Compliance (PNAP APP-152) in Autodesk Revit</h3>
+                        <p class="byline"><em>LWK + Partners</em> · Jun – Aug 2026</p>
+                        <p>
+                            A pyRevit extension (about 17,000 lines of Python) that runs Hong Kong's street-canyon and air-permeability checks on the live building model,
+                            including wind corridors that may bend by up to 15°, and draws the PASS/FAIL evidence into dedicated audit views.
+                        </p>
+                        <p class="result">A typical run went from 10–30+ minutes to 30–90 seconds after I split the plane search into a cheap sweep and a full check on the best candidates.</p>
+                        <div class="item-links"><span>proprietary code</span></div>
+                    </div>
+                </li>
+                <li class="item">
+                    <div class="thumb" data-diagram="rag" aria-label="Throughput: 14.9 tokens per second locally versus 33.7 on NVIDIA NIM"></div>
+                    <div>
+                        <h3><a href="https://github.com/1brah1/RAG_PROTOTYPE" target="_blank" rel="noopener noreferrer">Retrieval-Augmented Generation on an 8 GB Laptop GPU</a></h3>
+                        <p class="byline"><em>Independent project</em> · Jun 2026</p>
+                        <p>
+                            A RAG pipeline sized for an RTX 4060: embeddings run on the CPU so the full 8 GB goes to the language model,
+                            with one switch between a local 4-bit model and NVIDIA's hosted NIM behind the same response schema.
+                        </p>
+                        <p class="result">Over 10 runs: 14.94 tokens/s locally vs 33.66 tokens/s on NIM (0.771 s to first token).</p>
+                        <div class="item-links"><a href="https://github.com/1brah1/RAG_PROTOTYPE" target="_blank" rel="noopener noreferrer">code</a></div>
+                    </div>
+                </li>
+                <li class="item">
+                    <a class="thumb" href="https://1brah1.github.io/signed-area/" target="_blank" rel="noopener noreferrer" data-diagram="signed" aria-label="Two vectors spanning a parallelogram"></a>
+                    <div>
+                        <h3><a href="https://1brah1.github.io/signed-area/" target="_blank" rel="noopener noreferrer">Signed Area: Linear Algebra as a Scroll-Driven Story</a></h3>
+                        <p class="byline"><em>Independent project</em> · Jul 2026</p>
+                        <p>
+                            One Canvas 2D scene in which the same particles move through orientation tests, convex hulls, SVD, PCA and softmax attention as you scroll.
+                            All of the math is implemented by hand (no Three.js) and unit-tested with Vitest.
+                        </p>
+                        <div class="item-links">
+                            <a href="https://1brah1.github.io/signed-area/" target="_blank" rel="noopener noreferrer">live demo</a>
+                            <a href="https://github.com/1brah1/signed-area" target="_blank" rel="noopener noreferrer">code</a>
+                        </div>
+                    </div>
+                </li>
+                <li class="item">
+                    <div class="thumb" data-diagram="recycle" aria-label="A microphone feeding an STM32, which drives an LCD volume display and a sorting servo"></div>
+                    <div>
+                        <h3>Smart Recycling Station on an STM32</h3>
+                        <p class="byline"><em>ELEC3300 team project</em> · Spring 2026</p>
+                        <p>
+                            A voice-activated sorting station: real-time audio capture with DMA, a live volume display on the LCD,
+                            and servo-driven sorting, all running on an STM32.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block" id="experience" aria-labelledby="experience-title">
+            <h2 id="experience-title">Experience</h2>
+            <ul class="exp">
+                <li><span class="org">Gray Scrubs AI · Research Intern</span><span class="when">Sep 2026 – present</span><span class="desc">Research on generating rare, safety-critical events.</span></li>
+                <li><span class="org">LWK + Partners · Workflow Automation Intern</span><span class="when">Jun – Aug 2026</span><span class="desc">PNAP APP-152 compliance automation in Revit, and a proof of concept connecting an AI agent to Revit 2024 over the Model Context Protocol.</span></li>
+                <li><span class="org">Gray Scrubs AI · Hardware Engineer Intern</span><span class="when">Mar – May 2026</span><span class="desc">Maintained the NVIDIA Jetson fleet used for multi-country pilots and paper experiments.</span></li>
+                <li><span class="org">SUSTAINALPHA · Core Engineer</span><span class="when">Feb – May 2026</span><span class="desc">Monte Carlo and mean-variance risk forecasting, and LLM news summarisation, for an HKSTP-backed risk platform.</span></li>
+                <li><span class="org">HKUST · Undergraduate Research (UROP)</span><span class="when">2026</span><span class="desc">Added Omi Glass support to the <a href="https://github.com/hkust-spark/xg-glass-sdk" target="_blank" rel="noopener noreferrer">xg-glass-sdk</a> (merged upstream), then surveyed GPU remoting and LLM offloading, which became my thesis topic.</span></li>
+            </ul>
+        </section>
+
+        <section class="block" aria-labelledby="other-title">
+            <h2 id="other-title">Other projects</h2>
+            <ul class="other">
+                <li><a href="https://1brah1.github.io/cs_stuff/ai-reviewer/">AI Document Reviewer</a>: FastAPI, React and SQLite app for LLM-assisted document review, deployed on AWS EC2.</li>
+                <li><a href="https://1brah1.github.io/cs_stuff/stock-portfolio.html">Stock analytics dashboard</a>: incremental yFinance ETL into SQLite with a Flask API and live charts.</li>
+                <li><a href="https://1brah1.github.io/cs_stuff/bluetooth_robot_car/website/index.html">Bluetooth robot car</a>: Arduino and an L298N motor driver, controlled from a React Native app.</li>
+                <li><a href="https://github.com/1brah1/cs_stuff/tree/main/hashtable_implementation" target="_blank" rel="noopener noreferrer">C++ hash table</a>: templated, and grows by linking larger tables instead of rehashing.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="wrap">
+            <span>© 2026 Muhammad Ibrahim Khalid</span>
+            <span>Last updated October 2026</span>
+        </div>
+    </footer>
+
+    <script src="assets/js/diagrams.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
