@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jetson VQA · Muhammad Ibrahim Khalid</title>
+    <meta name="description" content="A low-vision navigation assistant running a vision-language model on a Jetson Orin NX: where the latency goes, the token-pooling sweep, engineering issues and lessons.">
+    <script>
+        try {
+            var saved = localStorage.getItem('ibr-theme');
+            if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+        } catch (e) {}
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/site.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='%231F4E9C'/><text x='16' y='21' font-size='12' font-family='Georgia,serif' font-weight='600' fill='white' text-anchor='middle'>MIK</text></svg>">
+</head>
+<body>
+    <header class="topbar">
+        <div class="wrap">
+            <a href="../" class="brand">Muhammad Ibrahim Khalid</a>
+            <nav class="topnav" aria-label="Main">
+                <a href="../#research">Research</a>
+                <a href="../#projects" aria-current="page">Projects</a>
+                <a href="../assets/Ibrahim_Khalid_CV.pdf">CV</a>
+                <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch between light and dark">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="case">
+        <a class="back" href="../#projects">← All projects</a>
+
+        <h1>Real-Time Visual Question Answering for Low-Vision Navigation on a Jetson Orin NX</h1>
+        <div class="meta">
+            <span>COMP4901D, HKUST</span>
+            <span>Mar – May 2026</span>
+            <span>with Hashim</span>
+            <span>
+                <a href="https://github.com/1brah1/VQA_Project-COMP4901D-" target="_blank" rel="noopener noreferrer">code</a> ·
+                <a href="https://github.com/1brah1/jetson-vqa-cpp-extensions" target="_blank" rel="noopener noreferrer">CUDA extensions</a>
+            </span>
+        </div>
+
+        <p class="lead">
+            A camera on a Jetson Orin NX (16 GB) looks at the street, a small vision-language model answers one question
+            ("is the crossing light green?", "are there stairs?", "is something in my way?"), and the answer is spoken aloud.
+            For a pedestrian with low vision a late answer is close to useless, so we set a 500 ms target for the whole loop.
+        </p>
+        <p>
+            <strong>My role.</strong> I built the vision side and everything related to speed: the SigLIP encoder, token pooling, the evaluation framework,
+            all on-device benchmarking, and the CUDA preprocessing kernels. Hashim worked on self-speculative decoding and a streaming text-to-speech model.
+        </p>
+
+        <h2>Where the latency goes</h2>
+        <p>
+            On the first complete run on the Jetson, I timed every stage. Capture and image encoding were cheap; the language model accounted for over 80% of the time per frame.
+        </p>
+        <figure class="fig wide">
+            <div data-diagram="vqaPipeline" data-viewbox="0 0 640 160" aria-label="Pipeline from camera through SigLIP, token pooling and Qwen2.5-0.5B to speech, with a time bar dominated by the language model"></div>
+            <figcaption>Figure 1. Pipeline and median time per frame (30 March): capture 14 ms, SigLIP 41 ms, language model 557 ms.</figcaption>
+        </figure>
+        <p>
+            SigLIP produces 576 image tokens per frame, and the language model attends over all of them before it can answer.
+            Average-pooling the tokens on their spatial grid shrinks that input directly, without retraining the encoder.
+        </p>
+
+        <h2>Token pooling</h2>
+        <p>Select a token count to see the effect of pooling on a synthetic street scene. The measurements below each setting are from the Jetson.</p>
+        <div class="token-toggle" role="group" aria-label="Number of image tokens">
+            <button type="button" value="576" aria-pressed="false">576</button>
+            <button type="button" value="81" aria-pressed="false">81</button>
+            <button type="button" value="36" aria-pressed="true">36</button>
+            <button type="button" value="9" aria-pressed="false">9</button>
+        </div>
+        <div class="token-grid" id="token-grid">
+            <svg viewBox="0 0 300 300" role="img" aria-label="A synthetic street scene shown as a grid of averaged tokens"></svg>
+        </div>
+        <p class="readout" id="token-readout" aria-live="polite">36 tokens (6×6) → 346 ms mean latency, 50% correct</p>
+
+        <h2>Results</h2>
+        <p>
+            Jetson Orin NX, FP16, label-only prompt, at most 4 generated tokens. I expected the usual trade-off between speed and accuracy; the sweep did not show one until 9 tokens.
+        </p>
+        <figure class="fig wide">
+            <div data-diagram="sweep" data-viewbox="0 0 640 300" aria-label="Bar chart of mean latency by token count against a 500 millisecond target"></div>
+            <figcaption>Figure 2. Mean end-to-end latency by number of image tokens. 36 tokens is both the fastest and among the most accurate settings.</figcaption>
+        </figure>
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Image tokens</th><th>Mean latency</th><th>Accuracy</th><th>"Unknown" answers</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>576</td><td>747 ms</td><td>25%</td><td>46%</td></tr>
+                    <tr><td>192</td><td>443 ms</td><td>39%</td><td>39%</td></tr>
+                    <tr><td>81</td><td>365 ms</td><td>50%</td><td>32%</td></tr>
+                    <tr class="best"><td>36</td><td>346 ms</td><td>50%</td><td>36%</td></tr>
+                    <tr><td>9</td><td>373 ms</td><td>43%</td><td>36%</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            At 36 tokens the loop is <strong>2.2× faster</strong> than at 576 and answers <strong>twice as many questions correctly</strong>.
+            A plausible explanation is that a 0.5B model with a lightly trained projection layer reads fewer, smoother tokens more reliably; below 36 the pooling starts to erase the signal itself.
+            The evaluation set is small (28 images), so the accuracy column indicates direction rather than a precise value.
+        </p>
+        <p>
+            Training the projection on a larger public dataset (8,102 street images) reached <strong>80.75%</strong> accuracy on 1,621 held-out images.
+            For the latency-critical path I also tested a small MLP classifier on the SigLIP features: about 23 ms per answer against about 241 ms through the language model (both measured on a laptop GPU).
+        </p>
+
+        <div class="panel">
+            <h3>Audio sample</h3>
+            <p class="small">Silero text-to-speech running on the Jetson (31 March): the first ten seconds of answers from a full evaluation run.</p>
+            <audio controls preload="none" src="../assets/audio/jetson-says.wav">Your browser cannot play this audio clip.</audio>
+        </div>
+
+        <h2>Engineering issues</h2>
+        <ol class="timeline">
+            <li><time datetime="2026-03-28">28 Mar</time><div><strong>Quantized weights read as FP16.</strong> The AWQ loader dropped the quantization config, so packed 4-bit weights were interpreted as FP16 and every answer was garbage. AutoAWQ does not support the Jetson's Python 3.8 on aarch64, so I reverted to FP16.</div></li>
+            <li><time datetime="2026-03-29">29 Mar</time><div><strong>Streaming TTS.</strong> VibeVoice needed five compatibility patches against the Jetson's older transformers release and was still unusable on the device, so speech falls back through Piper, Silero and pyttsx3.</div></li>
+            <li><time datetime="2026-03-30">30 Mar</time><div><strong>Unstable outputs.</strong> The model returned symbols, chat-template fragments or the question itself. A label-only prompt with a four-token limit resolved most cases.</div></li>
+            <li><time datetime="2026-03-31">31 Mar</time><div><strong>Dependency conflicts.</strong> Silero's torch-hub code ships its own <code>src</code> package, which shadowed ours; the loader now isolates our modules while Silero initialises. A LoRA adapter that worked locally scored 0% on the Jetson because of a PEFT version mismatch.</div></li>
+            <li><time datetime="2026-05-07">May</time><div><strong>Class imbalance.</strong> 83% of the obstacle training labels were positive, so the live demo almost always answered "yes". I rebalanced the data and retrained.</div></li>
+        </ol>
+
+        <h2>CUDA preprocessing kernels</h2>
+        <p>
+            I moved token pooling and audio validation into custom CUDA kernels with PyBind11 bindings
+            (<a href="https://github.com/1brah1/jetson-vqa-cpp-extensions" target="_blank" rel="noopener noreferrer">jetson-vqa-cpp-extensions</a>).
+            Each kernel was faster than its Python equivalent, but the end-to-end loop was unchanged.
+        </p>
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead><tr><th>Stage</th><th>Python</th><th>CUDA</th><th>Speed-up</th></tr></thead>
+                <tbody>
+                    <tr><td>Token pooling, 576 → 9</td><td>0.573 ms</td><td>0.518 ms</td><td>1.10×</td></tr>
+                    <tr><td>Audio validation</td><td>0.654 ms</td><td>0.610 ms</td><td>1.07×</td></tr>
+                    <tr><td>Full VQA loop (12 samples)</td><td>550.44 ms</td><td>551.70 ms</td><td>1.00×</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            Generation accounts for roughly 490 ms of the 550 ms loop, so sub-millisecond savings in preprocessing cannot appear end to end.
+            The stage breakdown in Figure 1 already predicted this; the lesson I took from it is to profile before optimising.
+        </p>
+
+        <div class="panel">
+            <h3>Limitations and lessons</h3>
+            <ul>
+                <li><strong>Evaluation hygiene.</strong> An early fine-tuning set was built from augmented copies of the 28 evaluation images, so results from those runs are not reported here.</li>
+                <li><strong>Domain gap.</strong> Models scoring about 80% on public street images dropped to about 46% on our own photographs.</li>
+                <li><strong>Reproducibility.</strong> Some early results survive only in notes without raw logs; they are excluded from this page.</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="wrap">
+            <span>© 2026 Muhammad Ibrahim Khalid</span>
+            <span>The street scene in the token demo is synthetic; all measurements are from the project's logs.</span>
+        </div>
+    </footer>
+
+    <script src="../assets/js/diagrams.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>
